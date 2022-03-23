@@ -1,26 +1,63 @@
-import React from 'react'
-import { 
-    View, 
+import React, { useState, useEffect } from 'react'
+import {
     KeyboardAvoidingView, 
-    Platform, 
-    Text 
+    Platform,
+    ActivityIndicator
 } from 'react-native'
+
 import useAuth from '../../hooks/useAuth'
+import api from '../../service/dropboxAPI'
+
+import { COLORS } from '../../theme'
+import { FileList } from '../../components/FileList'
 
 export function Home() {
 
     const { userToken } = useAuth()
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [files, setFiles] = useState<Array<Object>>([])
+    const [folders, setFolders] = useState<Array<Object>>([])
+
+    useEffect(() => {
+        setIsLoading(true)
+        const config = {
+            headers: { Authorization: userToken, 'Content-Type': 'application/json', }
+        }
+
+        const payload = {
+            "path": "",
+            "recursive": false,
+            "include_media_info": false,
+            "include_deleted": false,
+            "include_has_explicit_shared_members": false,
+            "include_mounted_folders": true,
+            "include_non_downloadable_files": true
+        }
+        
+        api.post('/files/list_folder', payload, config)
+            .then((res: any) => {
+                const files = res.data.entries.filter((entry: any) => entry['.tag'] === 'file')
+                setFiles(files)
+                const folders = res.data.entries.filter((entry: any) => entry['.tag'] === 'folder')
+                setFolders(folders)
+            }).catch((err: Error) => console.log(err))
+            .finally(() => {
+                setIsLoading(false)
+            })
+    }, [])
 
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-            <View> 
-                <Text>
-                    Hello World
-                </Text>
-            </View>
+            {
+                isLoading ? (
+                    <ActivityIndicator color={COLORS.PRIMARY} />
+                ) : (
+                    <FileList files={files} />
+                )
+            }
         </KeyboardAvoidingView>
     )
 }
