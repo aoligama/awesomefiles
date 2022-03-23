@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react'
 import {
     KeyboardAvoidingView, 
     Platform,
-    ActivityIndicator
+    View,
+    ActivityIndicator,
+    TouchableOpacity,
+    Text
 } from 'react-native'
 
 import useAuth from '../../hooks/useAuth'
@@ -10,13 +13,17 @@ import api from '../../service/dropboxAPI'
 
 import { COLORS } from '../../theme'
 import { FileList } from '../../components/FileList'
+import { styles } from './styles'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+
+import { IFileData } from '../../constants/IFile'
 
 export function Home() {
 
     const { userToken } = useAuth()
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [files, setFiles] = useState<Array<Object>>([])
-    const [folders, setFolders] = useState<Array<Object>>([])
+    const [folders, setFolders] = useState<Array<IFileData>>([])
 
     useEffect(() => {
         setIsLoading(true)
@@ -55,7 +62,25 @@ export function Home() {
                 isLoading ? (
                     <ActivityIndicator color={COLORS.PRIMARY} />
                 ) : (
-                    <FileList files={files} />
+                    <>
+                        <View style={styles.folderWrapper}>
+                            {
+                                folders.map(( folder:IFileData ) => {
+                                    return (
+                                        <TouchableOpacity style={styles.folderComponent} key={folder.id}>
+                                            <MaterialCommunityIcons 
+                                                style={styles.iconSpacing}
+                                                name="folder" 
+                                                size={25}
+                                            />
+                                            <Text>{folder.name}</Text>
+                                        </TouchableOpacity>
+                                    )
+                                })
+                            }
+                        </View>
+                        <FileList files={files} />
+                    </>
                 )
             }
         </KeyboardAvoidingView>

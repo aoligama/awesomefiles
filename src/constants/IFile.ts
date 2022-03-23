@@ -5,4 +5,5 @@ export interface IFile {
 export interface IFileData {
     name: string
     path_display: string
+    id: string | number
 }

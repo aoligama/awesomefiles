@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
         backgroundColor: COLORS.BACKGROUND
     },
     item: {
-      backgroundColor: '#FFF',
+      backgroundColor: COLORS.WHITE,
       padding: 20,
       marginVertical: 8,
       marginHorizontal: 16,
